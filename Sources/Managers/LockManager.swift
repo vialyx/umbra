@@ -43,35 +43,33 @@ class LockManager {
     }
     
     private func performLock() {
-        // Method 1: Using CGSession (most reliable)
+        // Method 1: Using pmset (works without accessibility permissions)
         let task = Process()
-        task.launchPath = "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession"
-        task.arguments = ["-suspend"]
+        task.launchPath = "/usr/bin/pmset"
+        task.arguments = ["displaysleepnow"]
         
         do {
             try task.run()
-            print("Screen locked successfully")
+            task.waitUntilExit()
+            print("Screen locked successfully using pmset")
         } catch {
-            print("Failed to lock screen: \(error)")
+            print("Failed to lock screen with pmset: \(error)")
             // Fallback method
             fallbackLock()
         }
     }
     
     private func fallbackLock() {
-        // Method 2: Using AppleScript
-        let script = """
-        tell application "System Events"
-            keystroke "q" using {command down, control down}
-        end tell
-        """
+        // Method 2: Using open command to activate screen saver
+        let task = Process()
+        task.launchPath = "/usr/bin/open"
+        task.arguments = ["-a", "ScreenSaverEngine"]
         
-        var error: NSDictionary?
-        if let scriptObject = NSAppleScript(source: script) {
-            scriptObject.executeAndReturnError(&error)
-            if let error = error {
-                print("AppleScript error: \(error)")
-            }
+        do {
+            try task.run()
+            print("Activated screen saver as fallback")
+        } catch {
+            print("Screen saver activation failed: \(error)")
         }
     }
     

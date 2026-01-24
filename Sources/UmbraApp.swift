@@ -27,11 +27,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Create menu bar item
         setupMenuBar()
         
+        // Update menu bar when monitoring state changes
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateMenuBarStatus),
+            name: NSNotification.Name("MonitoringStateChanged"),
+            object: nil
+        )
+        
         // Show onboarding if first launch
         checkAndShowOnboarding()
-        
-        // Request permissions
-        requestPermissions()
     }
     
     func checkAndShowOnboarding() {
@@ -49,7 +54,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 .environmentObject(PreferencesManager.shared)
             
             onboardingWindow = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 600, height: 500),
+                contentRect: NSRect(x: 0, y: 0, width: 600, height: 540),
                 styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false
@@ -82,11 +87,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         menu.addItem(NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Monitoring: Off", action: nil, keyEquivalent: ""))
+        
+        // Dynamic monitoring status
+        let isMonitoring = !DeviceMonitor.shared.monitoredDevices.isEmpty
+        let statusText = isMonitoring ? "Monitoring: On" : "Monitoring: Off"
+        let statusMenuItem = NSMenuItem(title: statusText, action: nil, keyEquivalent: "")
+        statusMenuItem.isEnabled = false
+        menu.addItem(statusMenuItem)
+        
+        // Show monitored device count if any
+        if isMonitoring {
+            let count = DeviceMonitor.shared.monitoredDevices.count
+            let deviceText = count == 1 ? "device" : "devices"
+            let countItem = NSMenuItem(title: "  \(count) \(deviceText) tracked", action: nil, keyEquivalent: "")
+            countItem.isEnabled = false
+            menu.addItem(countItem)
+        }
+        
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit Umbra", action: #selector(quit), keyEquivalent: "q"))
         
-        statusItem?.menu = menu
+        self.statusItem?.menu = menu
     }
     
     @objc func togglePopover() {
@@ -117,6 +138,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @objc func quit() {
         NSApplication.shared.terminate(nil)
+    }
+    
+    @objc func updateMenuBarStatus() {
+        setupMenu() // Rebuild menu with current status
     }
     
     func requestPermissions() {

@@ -61,6 +61,9 @@ class DeviceMonitor: NSObject, ObservableObject {
         }
         saveMonitoredDevices()
         
+        // Notify menu bar to update status
+        NotificationCenter.default.post(name: NSNotification.Name("MonitoringStateChanged"), object: nil)
+        
         if !monitoredDevices.isEmpty && !isMonitoring {
             startMonitoring()
         } else if monitoredDevices.isEmpty {

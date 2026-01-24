@@ -34,6 +34,22 @@ struct SettingsView: View {
 
 struct DevicesTab: View {
     @EnvironmentObject var deviceMonitor: DeviceMonitor
+    @State private var searchText = ""
+    
+    var filteredDiscoveredDevices: [Device] {
+        let devices = deviceMonitor.discoveredDevices.filter { device in
+            !deviceMonitor.monitoredDevices.contains(where: { $0.id == device.id })
+        }
+        
+        if searchText.isEmpty {
+            return devices
+        }
+        
+        return devices.filter { device in
+            device.name.localizedCaseInsensitiveContains(searchText) ||
+            device.type.rawValue.localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -68,6 +84,28 @@ struct DevicesTab: View {
             
             Divider()
             
+            // Search Bar (shown when scanning)
+            if deviceMonitor.isScanning {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                    TextField("Search devices...", text: $searchText)
+                        .textFieldStyle(.plain)
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = "" }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(8)
+                .background(Color(NSColor.controlBackgroundColor))
+                .cornerRadius(8)
+                .padding(.horizontal)
+                .padding(.top, 8)
+            }
+            
             // Bluetooth Status
             if deviceMonitor.bluetoothState != .poweredOn {
                 BluetoothWarningView(state: deviceMonitor.bluetoothState)
@@ -90,19 +128,37 @@ struct DevicesTab: View {
                     }
                     
                     // Discovered Devices
-                    if deviceMonitor.isScanning && !deviceMonitor.discoveredDevices.isEmpty {
+                    if deviceMonitor.isScanning && !filteredDiscoveredDevices.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Discovered Devices")
-                                .font(.headline)
-                                .padding(.horizontal)
-                            
-                            ForEach(deviceMonitor.discoveredDevices) { device in
-                                let isMonitored = deviceMonitor.monitoredDevices.contains(where: { $0.id == device.id })
-                                if !isMonitored {
-                                    DeviceRow(device: device, isMonitored: false)
+                            HStack {
+                                Text("Discovered Devices")
+                                    .font(.headline)
+                                if !searchText.isEmpty {
+                                    Text("(\(filteredDiscoveredDevices.count))")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
                                 }
                             }
+                            .padding(.horizontal)
+                            
+                            ForEach(filteredDiscoveredDevices) { device in
+                                DeviceRow(device: device, isMonitored: false)
+                            }
                         }
+                    }
+                    
+                    if deviceMonitor.isScanning && filteredDiscoveredDevices.isEmpty && !searchText.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 48))
+                                .foregroundColor(.secondary)
+                            Text("No Devices Found")
+                                .font(.title3)
+                            Text("Try a different search term")
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 60)
                     }
                     
                     if !deviceMonitor.isScanning && deviceMonitor.monitoredDevices.isEmpty {
@@ -365,14 +421,14 @@ struct AdvancedTab: View {
                 HStack {
                     Text("Version:")
                     Spacer()
-                    Text("1.0.0")
+                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown")
                         .foregroundColor(.secondary)
                 }
                 
                 HStack {
                     Text("Build:")
                     Spacer()
-                    Text("2026.1.24")
+                    Text(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown")
                         .foregroundColor(.secondary)
                 }
             }

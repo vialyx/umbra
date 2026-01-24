@@ -6,13 +6,12 @@ struct OnboardingView: View {
     @EnvironmentObject var preferences: PreferencesManager
     @State private var currentPage = 0
     @State private var bluetoothGranted = false
-    @State private var accessibilityGranted = false
     
     var body: some View {
         VStack(spacing: 0) {
             // Page indicator
             HStack(spacing: 8) {
-                ForEach(0..<4) { index in
+                ForEach(0..<3) { index in
                     Circle()
                         .fill(index == currentPage ? Color.accentColor : Color.gray.opacity(0.3))
                         .frame(width: 8, height: 8)
@@ -28,8 +27,6 @@ struct OnboardingView: View {
                 case 1:
                     BluetoothPermissionPage(granted: $bluetoothGranted)
                 case 2:
-                    AccessibilityPermissionPage(granted: $accessibilityGranted)
-                case 3:
                     DeviceSetupPage()
                 default:
                     WelcomePage()
@@ -50,7 +47,7 @@ struct OnboardingView: View {
                 
                 Spacer()
                 
-                if currentPage < 3 {
+                if currentPage < 2 {
                     Button("Next") {
                         withAnimation {
                             currentPage += 1
@@ -66,16 +63,16 @@ struct OnboardingView: View {
                 }
             }
             .padding()
+            .padding(.bottom, 10) // Extra padding to prevent cutoff
         }
-        .frame(width: 600, height: 500)
+        .frame(width: 600, height: 540) // Increased height for better layout
     }
     
     var canProceed: Bool {
         switch currentPage {
         case 0: return true
         case 1: return bluetoothGranted
-        case 2: return accessibilityGranted
-        case 3: return true
+        case 2: return true
         default: return false
         }
     }
