@@ -49,15 +49,12 @@ sudo -u "$CURRENT_USER" launchctl unload "$PLIST_PATH" 2>/dev/null || true
 echo "Loading LaunchAgent..."
 sudo -u "$CURRENT_USER" launchctl load "$PLIST_PATH"
 
-# Wait for LaunchAgent to process
-sleep 2
+# Give LaunchAgent time to process
+sleep 1
 
-# Force start the app if it's not running yet
+# Force start the app using open as the current user
 echo "Starting Umbra..."
-if ! pgrep -x "Umbra" > /dev/null; then
-    # Use open command directly as the user
-    sudo -u "$CURRENT_USER" open -a "/Applications/Umbra.app" 2>/dev/null &
-fi
+su - "$CURRENT_USER" -c "open -a '/Applications/Umbra.app'" 2>/dev/null &
 
 # Give the app time to launch
 sleep 1

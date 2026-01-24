@@ -28,7 +28,7 @@ struct Device: Identifiable, Codable, Hashable {
             case .mac: return "laptopcomputer"
             case .homePod: return "homepod"
             case .appleTV: return "appletv"
-            case .other: return "bluetooth"
+            case .other: return "antenna.radiowaves.left.and.right"
             }
         }
     }

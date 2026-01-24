@@ -347,10 +347,6 @@ struct DeviceSetupPage: View {
     @EnvironmentObject var deviceMonitor: DeviceMonitor
     @State private var hasStartedScanning = false
     
-    var sortedDevices: [Device] {
-        deviceMonitor.discoveredDevices.sorted { $0.rssi > $1.rssi }
-    }
-    
     var body: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 40)
@@ -429,7 +425,7 @@ struct DeviceSetupPage: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal)
                             
-                            ForEach(sortedDevices.prefix(5)) { device in
+                            ForEach(deviceMonitor.discoveredDevices.prefix(5)) { device in
                                 OnboardingDeviceRow(device: device)
                             }
                             

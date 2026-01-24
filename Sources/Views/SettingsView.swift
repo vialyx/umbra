@@ -41,18 +41,14 @@ struct DevicesTab: View {
             !deviceMonitor.monitoredDevices.contains(where: { $0.id == device.id })
         }
         
-        let filtered: [Device]
         if searchText.isEmpty {
-            filtered = devices
-        } else {
-            filtered = devices.filter { device in
-                device.name.localizedCaseInsensitiveContains(searchText) ||
-                device.type.rawValue.localizedCaseInsensitiveContains(searchText)
-            }
+            return devices
         }
         
-        // Sort by RSSI (strongest/nearest first)
-        return filtered.sorted { $0.rssi > $1.rssi }
+        return devices.filter { device in
+            device.name.localizedCaseInsensitiveContains(searchText) ||
+            device.type.rawValue.localizedCaseInsensitiveContains(searchText)
+        }
     }
     
     var body: some View {

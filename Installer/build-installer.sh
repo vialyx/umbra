@@ -7,7 +7,7 @@ set -e
 
 PROJECT_NAME="Umbra"
 BUNDLE_ID="com.umbra.app"
-VERSION="1.0.8"
+VERSION="1.0.9"
 BUILD_DIR="build"
 RELEASE_DIR="release"
 APP_NAME="${PROJECT_NAME}.app"
