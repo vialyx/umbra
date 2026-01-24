@@ -5,6 +5,21 @@ All notable changes to Umbra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-01-24
+
+### Added
+- **App icon** for better notification display and app branding
+- Icon generation script for consistent iconography
+
+### Fixed
+- **Test Lock Screen button** now works immediately without waiting for cooldown period
+- **Notification icon** now displays properly with custom Umbra icon
+
+### Technical
+- Updated build scripts to include AppIcon.icns in app bundle
+- Added force parameter to lock screen function for testing purposes
+- Icon includes shield with lock design matching app's security theme
+
 ## [1.0.1] - 2026-01-24
 
 ### Added

@@ -17,11 +17,14 @@ class LockManager {
         }
     }
     
-    func lockScreen() {
-        // Prevent locking too frequently
-        if let lastLock = lastLockTime,
-           Date().timeIntervalSince(lastLock) < minimumLockInterval {
-            return
+    func lockScreen(force: Bool = false) {
+        // Prevent locking too frequently (unless forced for testing)
+        if !force {
+            if let lastLock = lastLockTime,
+               Date().timeIntervalSince(lastLock) < minimumLockInterval {
+                print("Lock prevented - too soon (\(Int(Date().timeIntervalSince(lastLock)))s ago)")
+                return
+            }
         }
         
         lastLockTime = Date()

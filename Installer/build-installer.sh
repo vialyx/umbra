@@ -7,7 +7,7 @@ set -e
 
 PROJECT_NAME="Umbra"
 BUNDLE_ID="com.umbra.app"
-VERSION="1.0.0"
+VERSION="1.0.2"
 BUILD_DIR="build"
 RELEASE_DIR="release"
 APP_NAME="${PROJECT_NAME}.app"
@@ -55,8 +55,11 @@ chmod +x "$APP_DIR/Contents/MacOS/Umbra"
 # Copy Info.plist
 cp Info.plist "$APP_DIR/Contents/Info.plist"
 
-# Create icon placeholder (if you have one)
-# cp Resources/AppIcon.icns "$APP_DIR/Contents/Resources/"
+# Copy app icon
+if [ -f "Resources/AppIcon.icns" ]; then
+    cp Resources/AppIcon.icns "$APP_DIR/Contents/Resources/"
+    echo -e "${GREEN}  ✓ App icon included${NC}"
+fi
 
 # Sign the app (requires Developer ID certificate)
 echo -e "${GREEN}Signing application...${NC}"
@@ -76,7 +79,9 @@ pkgbuild --root "$BUILD_DIR" \
 echo -e "${GREEN}Creating distribution package...${NC}"
 productbuild --distribution "Installer/Distribution.xml" \
              --package-path "$BUILD_DIR" \
-  Ad-hoc signing for local distribution
+             "$RELEASE_DIR/${PROJECT_NAME}-${VERSION}.pkg"
+
+# Optional: Ad-hoc signing for local distribution
 productsign --sign - \
             "$RELEASE_DIR/${PROJECT_NAME}-${VERSION}.pkg" \
             "$RELEASE_DIR/${PROJECT_NAME}-${VERSION}-signed.pkg" 2>/dev/null && \
@@ -90,9 +95,5 @@ echo -e "${BLUE}Ready for GitHub release!${NC}"
 echo -e "${BLUE}Note: For Mac App Store or wider distribution:${NC}"
 echo -e "  1. Sign with Developer ID certificates"
 echo -e "  2. Notarize with Apple: xcrun notarytool submit"
-echo -e "  3. Staple the notarization: xcrun stapler staple
-echo -e "  2. Notarize with Apple: xcrun notarytool submit"
 echo -e "  3. Staple the notarization: xcrun stapler staple"
 
-echo -e "${GREEN}Build complete!${NC}"
-echo -e "Installer: ${RELEASE_DIR}/${PROJECT_NAME}-${VERSION}.pkg"

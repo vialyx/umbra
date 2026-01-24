@@ -379,9 +379,14 @@ struct AdvancedTab: View {
             
             Section {
                 Button("Test Lock Screen") {
-                    LockManager.shared.lockScreen()
+                    // Force lock for testing (bypass cooldown)
+                    LockManager.shared.lockScreen(force: true)
                 }
                 .foregroundColor(.orange)
+                
+                Text("Tests the screen locking functionality")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 
                 Button("Reset All Settings") {
                     resetSettings()

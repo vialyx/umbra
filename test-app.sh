@@ -19,6 +19,12 @@ cp .build/debug/Umbra "$APP_DIR/Contents/MacOS/"
 # Copy Info.plist
 cp Info.plist "$APP_DIR/Contents/Info.plist"
 
+# Copy app icon if it exists
+if [ -f "Resources/AppIcon.icns" ]; then
+    cp Resources/AppIcon.icns "$APP_DIR/Contents/Resources/"
+    echo "  ✓ App icon copied"
+fi
+
 # Update bundle identifier for testing (avoid conflicts)
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.umbra.app.test" "$APP_DIR/Contents/Info.plist" 2>/dev/null || true
 
