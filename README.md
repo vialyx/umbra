@@ -15,6 +15,12 @@
 
 Umbra automatically locks your Mac when you walk away with your iPhone or Apple Watch, providing seamless security for your workspace using Bluetooth proximity detection.
 
+## 🎥 Demo Video
+
+[![Umbra Demo](https://img.youtube.com/vi/mKpcqu5VCc0/maxresdefault.jpg)](https://youtu.be/mKpcqu5VCc0)
+
+Watch Umbra in action! Click above to see how it works.
+
 > **Note**: This software is free for personal use. Commercial use requires a paid license. [Contact us](https://www.paypal.com/paypalme/vialyx) for commercial licensing.
 
 ## Features
