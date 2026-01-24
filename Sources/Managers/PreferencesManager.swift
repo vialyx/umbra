@@ -1,6 +1,5 @@
 import Foundation
 import Combine
-import ServiceManagement
 
 class PreferencesManager: ObservableObject {
     static let shared = PreferencesManager()
@@ -42,20 +41,12 @@ class PreferencesManager: ObservableObject {
     }
     
     private func updateLaunchAtLogin() {
-        // This will be handled by the installer with a LaunchAgent
-        // For now, we'll use ServiceManagement framework
-        #if !DEBUG
-        if #available(macOS 13.0, *) {
-            do {
-                if launchAtLogin {
-                    try SMAppService.mainApp.register()
-                } else {
-                    try SMAppService.mainApp.unregister()
-                }
-            } catch {
-                print("Failed to update launch at login: \(error)")
-            }
-        }
-        #endif
+        // Launch at login is handled by the LaunchAgent installed in ~/Library/LaunchAgents/
+        // The installer creates com.umbra.app.plist which handles auto-start
+        // We don't need to use SMAppService as it would create duplicate instances
+        
+        // For future: Could modify the LaunchAgent plist's RunAtLoad value instead
+        // For now, this setting is cosmetic - the LaunchAgent always runs at login
+        print("Launch at login setting: \(launchAtLogin) (handled by LaunchAgent)")
     }
 }
