@@ -47,7 +47,11 @@ chmod 644 "$PLIST_PATH"
 # Load the LaunchAgent
 sudo -u "$CURRENT_USER" launchctl load "$PLIST_PATH"
 
+# Launch the app immediately
+echo "Starting Umbra..."
+sudo -u "$CURRENT_USER" open -a "/Applications/Umbra.app"
+
 echo "Umbra installation complete!"
-echo "The application will start automatically on next login."
+echo "The application has been started and will launch automatically on login."
 
 exit 0

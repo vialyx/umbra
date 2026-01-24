@@ -18,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var popover: NSPopover?
     var settingsWindow: NSWindow?
+    var onboardingWindow: NSWindow?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Hide dock icon - menu bar app only
@@ -26,8 +27,42 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Create menu bar item
         setupMenuBar()
         
+        // Show onboarding if first launch
+        checkAndShowOnboarding()
+        
         // Request permissions
         requestPermissions()
+    }
+    
+    func checkAndShowOnboarding() {
+        if !PreferencesManager.shared.hasCompletedOnboarding {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.showOnboarding()
+            }
+        }
+    }
+    
+    func showOnboarding() {
+        if onboardingWindow == nil {
+            let contentView = OnboardingView()
+                .environmentObject(DeviceMonitor.shared)
+                .environmentObject(PreferencesManager.shared)
+            
+            onboardingWindow = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 600, height: 500),
+                styleMask: [.titled, .closable],
+                backing: .buffered,
+                defer: false
+            )
+            onboardingWindow?.center()
+            onboardingWindow?.title = "Welcome to Umbra"
+            onboardingWindow?.contentView = NSHostingView(rootView: contentView)
+            onboardingWindow?.isReleasedWhenClosed = false
+            onboardingWindow?.level = .floating
+        }
+        
+        onboardingWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
     
     func setupMenuBar() {

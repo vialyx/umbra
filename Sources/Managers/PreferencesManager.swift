@@ -28,12 +28,17 @@ class PreferencesManager: ObservableObject {
         didSet { UserDefaults.standard.set(showNotifications, forKey: "showNotifications") }
     }
     
+    @Published var hasCompletedOnboarding: Bool {
+        didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding") }
+    }
+    
     private init() {
         self.autoLockEnabled = UserDefaults.standard.object(forKey: "autoLockEnabled") as? Bool ?? true
         self.rssiThreshold = UserDefaults.standard.object(forKey: "rssiThreshold") as? Int ?? -70
         self.lockDelay = UserDefaults.standard.object(forKey: "lockDelay") as? Int ?? 5
         self.launchAtLogin = UserDefaults.standard.object(forKey: "launchAtLogin") as? Bool ?? false
         self.showNotifications = UserDefaults.standard.object(forKey: "showNotifications") as? Bool ?? true
+        self.hasCompletedOnboarding = UserDefaults.standard.object(forKey: "hasCompletedOnboarding") as? Bool ?? false
     }
     
     private func updateLaunchAtLogin() {
