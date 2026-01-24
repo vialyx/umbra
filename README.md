@@ -3,10 +3,19 @@
 <p align="center">
   <img src="https://img.shields.io/badge/macOS-13.0+-blue.svg" alt="macOS 13.0+">
   <img src="https://img.shields.io/badge/Swift-5.9+-orange.svg" alt="Swift 5.9+">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
+  <img src="https://img.shields.io/badge/License-Proprietary-red.svg" alt="Proprietary License">
+</p>
+
+<p align="center">
+  <strong>💖 Support Development</strong><br>
+  <a href="https://www.paypal.com/paypalme/vialyx">
+    <img src="https://img.shields.io/badge/Donate-PayPal-blue.svg" alt="Donate via PayPal">
+  </a>
 </p>
 
 Umbra automatically locks your Mac when you walk away with your iPhone or Apple Watch, providing seamless security for your workspace using Bluetooth proximity detection.
+
+> **Note**: This software is free for personal use. Commercial use requires a paid license. [Contact us](https://www.paypal.com/paypalme/vialyx) for commercial licensing.
 
 ## Features
 
@@ -187,13 +196,41 @@ Go to Advanced tab → Reset All Settings to restore defaults
 - [ ] Activity log
 - [ ] iCloud sync for settings
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details
+**Umbra Proprietary License**
+
+- ✅ **Free for Personal Use** - Use Umbra at home for personal security
+- ✅ **Educational Use** - Study the source code for learning
+- ❌ **Commercial Use Restricted** - Requires a paid commercial license
+
+**Commercial Use Includes:**
+- Using in a business environment
+- Deploying on company computers
+- Incorporating into commercial products
+- Any use for profit or commercial advantage
+
+**Get a Commercial License:**
+- [Contact us via PayPal](https://www.paypal.com/paypalme/vialyx) to discuss commercial licensing
+- See [LICENSE](LICENSE) file for full terms and conditions
+
+## Contributing
+
+**Note**: By contributing to this project, you agree that your contributions will be licensed under the same proprietary license terms. For substantial contributions or commercial partnerships, please contact us first.
+
+Pull requests for bug fixes and improvements are welcome for consideration.
+
+## Support & Donations
+
+Love Umbra? Support its development!
+
+💖 **[Donate via PayPal](https://www.paypal.com/paypalme/vialyx)**
+
+Your donations help:
+- Continue active development
+- Add new features
+- Provide support and bug fixes
+- Keep the project maintained
 
 ## Acknowledgments
 
@@ -201,7 +238,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 - Built with SwiftUI and Core Bluetooth
 - Thanks to the macOS developer community
 
-## Support
+## Contact
 
 - **Issues** - [GitHub Issues](https://github.com/yourusername/umbra/issues)
 - **Discussions** - [GitHub Discussions](https://github.com/yourusername/umbra/discussions)
