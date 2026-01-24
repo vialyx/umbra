@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>Umbra</title>
+    <organization>com.umbra</organization>
+    <domains enable_localSystem="true"/>
+    <options customize="never" require-scripts="true" rootVolumeOnly="true" />
+    
+    <pkg-ref id="com.umbra.app"/>
+    
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.umbra.app"/>
+        </line>
+    </choices-outline>
+    
+    <choice id="default"/>
+    
+    <choice id="com.umbra.app" visible="false">
+        <pkg-ref id="com.umbra.app"/>
+    </choice>
+    
+    <pkg-ref id="com.umbra.app" version="1.0.0" onConclusion="none">Umbra-component.pkg</pkg-ref>
+    
+</installer-gui-script>

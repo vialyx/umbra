@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Post-installation script for Umbra
+# Sets up LaunchAgent and initial configuration
+
+CURRENT_USER=$(stat -f "%Su" /dev/console)
+USER_HOME=$(eval echo ~$CURRENT_USER)
+LAUNCH_AGENTS_DIR="$USER_HOME/Library/LaunchAgents"
+PLIST_NAME="com.umbra.app.plist"
+PLIST_PATH="$LAUNCH_AGENTS_DIR/$PLIST_NAME"
+
+echo "Setting up Umbra for user: $CURRENT_USER"
+
+# Create LaunchAgents directory if it doesn't exist
+mkdir -p "$LAUNCH_AGENTS_DIR"
+
+# Create LaunchAgent plist
+cat > "$PLIST_PATH" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.umbra.app</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Applications/Umbra.app/Contents/MacOS/Umbra</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ProcessType</key>
+    <string>Interactive</string>
+    <key>LimitLoadToSessionType</key>
+    <array>
+        <string>Aqua</string>
+    </array>
+</dict>
+</plist>
+EOF
+
+# Set correct permissions
+chown "$CURRENT_USER:staff" "$PLIST_PATH"
+chmod 644 "$PLIST_PATH"
+
+# Load the LaunchAgent
+sudo -u "$CURRENT_USER" launchctl load "$PLIST_PATH"
+
+echo "Umbra installation complete!"
+echo "The application will start automatically on next login."
+
+exit 0
