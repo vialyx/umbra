@@ -17,6 +17,11 @@ let package = Package(
             name: "Umbra",
             dependencies: [],
             path: "Sources"
+        ),
+        .testTarget(
+            name: "UmbraTests",
+            dependencies: ["Umbra"],
+            path: "Tests"
         )
     ]
 )

@@ -14,6 +14,7 @@ class DeviceMonitor: NSObject, ObservableObject {
     private var centralManager: CBCentralManager!
     private var peripherals: [UUID: CBPeripheral] = [:]
     private var monitoringTimer: Timer?
+    private var deviceOutOfRangeTime: [UUID: Date] = [:] // Track when devices went out of range
     private let lockManager = LockManager.shared
     private let preferences = PreferencesManager.shared
     
@@ -85,7 +86,24 @@ class DeviceMonitor: NSObject, ObservableObject {
         
         // Check device proximity every 2 seconds
         monitoringTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            self?.checkDeviceProximity()
+            guard let self = self else { return }
+            
+            // Pause scanning if screen is locked to save battery
+            if self.isScreenLocked() {
+                if self.centralManager.isScanning {
+                    self.centralManager.stopScan()
+                }
+                return
+            }
+            
+            // Resume scanning if needed
+            if !self.centralManager.isScanning && self.centralManager.state == .poweredOn {
+                self.centralManager.scanForPeripherals(withServices: nil, options: [
+                    CBCentralManagerScanOptionAllowDuplicatesKey: true
+                ])
+            }
+            
+            self.checkDeviceProximity()
         }
     }
     
@@ -97,27 +115,64 @@ class DeviceMonitor: NSObject, ObservableObject {
     }
     
     private func checkDeviceProximity() {
+        // Don't check if screen is already locked
+        if isScreenLocked() {
+            return
+        }
+        
         let threshold = preferences.rssiThreshold
+        let lockDelay = Double(preferences.lockDelay)
         let now = Date()
         
-        var shouldLock = false
+        // Check if ALL monitored devices are out of range
+        var allDevicesOutOfRange = !monitoredDevices.isEmpty
         
         for device in monitoredDevices {
-            // Check if device hasn't been seen recently
-            if now.timeIntervalSince(device.lastSeen) > Double(preferences.lockDelay) {
-                shouldLock = true
-                break
-            }
+            let timeSinceLastSeen = now.timeIntervalSince(device.lastSeen)
+            let isInRange = timeSinceLastSeen <= 5.0 && device.rssi >= threshold
             
-            // Check RSSI threshold
-            if device.rssi < threshold {
-                shouldLock = true
-                break
+            if isInRange {
+                // Device is in range - reset the timer for this device
+                deviceOutOfRangeTime.removeValue(forKey: device.id)
+                allDevicesOutOfRange = false
+            } else if !isInRange && deviceOutOfRangeTime[device.id] == nil {
+                // Device just went out of range - start timer
+                deviceOutOfRangeTime[device.id] = now
+                allDevicesOutOfRange = false // Don't lock yet, just started timer
+            } else if let outOfRangeStart = deviceOutOfRangeTime[device.id] {
+                // Device has been out of range - check if enough time has passed
+                let timeOutOfRange = now.timeIntervalSince(outOfRangeStart)
+                if timeOutOfRange < lockDelay {
+                    allDevicesOutOfRange = false // Not enough time has passed yet
+                }
             }
         }
         
-        if shouldLock && preferences.autoLockEnabled {
+        // Only lock if all devices have been out of range for the full delay period
+        if allDevicesOutOfRange && preferences.autoLockEnabled {
+            print("All devices out of range for \(lockDelay)s - locking screen")
             lockManager.lockScreen()
+            // Clear the tracking after locking
+            deviceOutOfRangeTime.removeAll()
+        }
+    }
+    
+    private func isScreenLocked() -> Bool {
+        // Use DistributedNotificationCenter to check for screen lock events
+        // For now, we'll use a simple approach: check if screen saver is running
+        let task = Process()
+        task.launchPath = "/usr/bin/pgrep"
+        task.arguments = ["-x", "ScreenSaverEngine"]
+        
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        
+        do {
+            try task.run()
+            task.waitUntilExit()
+            return task.terminationStatus == 0 // 0 means process found (screen locked)
+        } catch {
+            return false
         }
     }
     

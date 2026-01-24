@@ -199,9 +199,11 @@ struct BluetoothPermissionPage: View {
     
     func requestBluetoothPermission() {
         isChecking = true
-        // The permission will be requested automatically by DeviceMonitor
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            checkBluetoothPermission()
+        // Trigger Bluetooth permission by starting the central manager
+        DeviceMonitor.shared.startScanning()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.checkBluetoothPermission()
+            DeviceMonitor.shared.stopScanning()
         }
     }
     
@@ -419,8 +421,13 @@ struct DeviceSetupPage: View {
     }
     
     func startScanning() {
-        deviceMonitor.startScanning()
         isScanning = true
+        deviceMonitor.startScanning()
+        
+        // Auto-stop after 30 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 30) { [weak deviceMonitor] in
+            deviceMonitor?.stopScanning()
+        }
     }
 }
 

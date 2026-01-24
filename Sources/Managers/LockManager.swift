@@ -85,9 +85,21 @@ class LockManager {
     
     private func sendLockNotification() {
         let content = UNMutableNotificationContent()
-        content.title = "Umbra"
-        content.body = "Device out of range. Locking your Mac..."
+        content.title = "Device Out of Range"
+        content.subtitle = "Locking your Mac for security"
+        content.body = "Your monitored device has moved away. Your screen will be locked in a moment."
         content.sound = .default
+        
+        // Add app icon to notification
+        if let iconPath = Bundle.main.path(forResource: "AppIcon", ofType: "icns"),
+           let iconURL = URL(string: "file://\(iconPath)") {
+            do {
+                let attachment = try UNNotificationAttachment(identifier: "icon", url: iconURL, options: nil)
+                content.attachments = [attachment]
+            } catch {
+                print("Failed to attach icon: \(error)")
+            }
+        }
         
         let request = UNNotificationRequest(
             identifier: UUID().uuidString,
