@@ -9,7 +9,7 @@ struct OnboardingView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Page indicator
+            // Page indicator - Fixed height section
             HStack(spacing: 8) {
                 ForEach(0..<3) { index in
                     Circle()
@@ -17,9 +17,9 @@ struct OnboardingView: View {
                         .frame(width: 8, height: 8)
                 }
             }
-            .padding(.top, 20)
+            .frame(height: 44) // Fixed height for indicator area
             
-            // Current page content
+            // Current page content - Fixed height section
             Group {
                 switch currentPage {
                 case 0:
@@ -32,10 +32,10 @@ struct OnboardingView: View {
                     WelcomePage()
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(width: 600, height: 440) // Fixed height for content
             .transition(.slide)
             
-            // Navigation buttons
+            // Navigation buttons - Fixed height section
             HStack {
                 if currentPage > 0 {
                     Button("Back") {
@@ -62,10 +62,10 @@ struct OnboardingView: View {
                     .buttonStyle(.borderedProminent)
                 }
             }
-            .padding()
-            .padding(.bottom, 10) // Extra padding to prevent cutoff
+            .frame(height: 76) // Fixed height for button area
+            .padding(.horizontal, 20)
         }
-        .frame(width: 600, height: 540) // Increased height for better layout
+        .frame(width: 600, height: 560)
     }
     
     var canProceed: Bool {
@@ -85,8 +85,8 @@ struct OnboardingView: View {
 
 struct WelcomePage: View {
     var body: some View {
-        VStack(spacing: 30) {
-            Spacer()
+        VStack(spacing: 0) {
+            Spacer(minLength: 40)
             
             Image(systemName: "lock.shield.fill")
                 .font(.system(size: 80))
@@ -101,6 +101,7 @@ struct WelcomePage: View {
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
+            .padding(.top, 30)
             
             VStack(alignment: .leading, spacing: 16) {
                 FeatureRow(icon: "iphone.and.arrow.forward", text: "Monitor your iPhone or Apple Watch")
@@ -109,14 +110,17 @@ struct WelcomePage: View {
                 FeatureRow(icon: "bolt.fill", text: "Runs efficiently in the background")
             }
             .padding(.horizontal, 60)
+            .padding(.top, 30)
             
-            Spacer()
+            Spacer(minLength: 40)
             
             Text("Let's set up your device in just a few steps")
                 .foregroundColor(.secondary)
                 .font(.subheadline)
+                .padding(.bottom, 20)
         }
-        .padding(40)
+        .padding(.horizontal, 40)
+        .frame(maxHeight: .infinity)
     }
 }
 
@@ -142,8 +146,8 @@ struct BluetoothPermissionPage: View {
     @State private var isChecking = false
     
     var body: some View {
-        VStack(spacing: 30) {
-            Spacer()
+        VStack(spacing: 0) {
+            Spacer(minLength: 40)
             
             Image(systemName: granted ? "checkmark.circle.fill" : "wave.3.right.circle")
                 .font(.system(size: 80))
@@ -158,6 +162,7 @@ struct BluetoothPermissionPage: View {
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
+            .padding(.top, 30)
             
             VStack(alignment: .leading, spacing: 12) {
                 Text("Why Bluetooth?")
@@ -170,28 +175,33 @@ struct BluetoothPermissionPage: View {
             }
             .padding(.horizontal, 60)
             .foregroundColor(.secondary)
+            .padding(.top, 30)
             
-            if !granted {
-                Button(action: requestBluetoothPermission) {
-                    Label(isChecking ? "Checking..." : "Grant Bluetooth Access", 
-                          systemImage: "wave.3.right")
-                        .frame(minWidth: 200)
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(isChecking)
-            } else {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                    Text("Bluetooth access granted!")
-                        .foregroundColor(.green)
-                        .fontWeight(.medium)
+            Group {
+                if !granted {
+                    Button(action: requestBluetoothPermission) {
+                        Label(isChecking ? "Checking..." : "Grant Bluetooth Access", 
+                              systemImage: "wave.3.right")
+                            .frame(minWidth: 200)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isChecking)
+                } else {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Bluetooth access granted!")
+                            .foregroundColor(.green)
+                            .fontWeight(.medium)
+                    }
                 }
             }
+            .padding(.top, 30)
             
-            Spacer()
+            Spacer(minLength: 60)
         }
-        .padding(40)
+        .padding(.horizontal, 40)
+        .frame(maxHeight: .infinity)
         .onAppear {
             requestBluetoothPermission()
         }
@@ -338,8 +348,8 @@ struct DeviceSetupPage: View {
     @State private var hasStartedScanning = false
     
     var body: some View {
-        VStack(spacing: 30) {
-            Spacer()
+        VStack(spacing: 0) {
+            Spacer(minLength: 40)
             
             Image(systemName: "iphone.and.arrow.forward")
                 .font(.system(size: 80))
@@ -354,92 +364,97 @@ struct DeviceSetupPage: View {
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
+            .padding(.top, 30)
             
-            if !hasStartedScanning {
-                VStack(spacing: 16) {
-                    Text("Make sure your device is:")
-                        .font(.headline)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Image(systemName: "checkmark.circle")
-                                .foregroundColor(.green)
-                            Text("Nearby (within a few meters)")
-                        }
-                        HStack {
-                            Image(systemName: "checkmark.circle")
-                                .foregroundColor(.green)
-                            Text("Bluetooth is enabled")
-                        }
-                        HStack {
-                            Image(systemName: "checkmark.circle")
-                                .foregroundColor(.green)
-                            Text("Unlocked or recently used")
-                        }
-                    }
-                    .foregroundColor(.secondary)
-                    
-                    Button(action: startScanning) {
-                        Label("Scan for Devices", systemImage: "magnifyingglass")
-                            .frame(minWidth: 200)
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding(.horizontal, 60)
-            } else if deviceMonitor.isScanning && deviceMonitor.discoveredDevices.isEmpty {
-                VStack(spacing: 16) {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                    
-                    Text("Scanning for devices...")
-                        .font(.headline)
-                    
-                    Text("Looking for nearby Bluetooth devices")
-                        .foregroundColor(.secondary)
-                        .padding(.top, 4)
-                    
-                    Button("Stop Scanning") {
-                        deviceMonitor.stopScanning()
-                    }
-                    .buttonStyle(.borderless)
-                    .foregroundColor(.secondary)
-                }
-                .padding(.horizontal, 60)
-            } else if !deviceMonitor.discoveredDevices.isEmpty {
-                ScrollView {
-                    VStack(spacing: 12) {
-                        Text("Found Devices:")
+            Group {
+                if !hasStartedScanning {
+                    VStack(spacing: 16) {
+                        Text("Make sure your device is:")
                             .font(.headline)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
                         
-                        ForEach(deviceMonitor.discoveredDevices.prefix(5)) { device in
-                            OnboardingDeviceRow(device: device)
-                        }
-                        
-                        if deviceMonitor.monitoredDevices.isEmpty {
-                            Text("Tap a device to start monitoring")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .padding(.top, 8)
-                        } else {
+                        VStack(alignment: .leading, spacing: 8) {
                             HStack {
-                                Image(systemName: "checkmark.circle.fill")
+                                Image(systemName: "checkmark.circle")
                                     .foregroundColor(.green)
-                                Text("\(deviceMonitor.monitoredDevices.count) device(s) added")
-                                    .foregroundColor(.green)
-                                    .fontWeight(.medium)
+                                Text("Nearby (within a few meters)")
                             }
-                            .padding(.top, 8)
+                            HStack {
+                                Image(systemName: "checkmark.circle")
+                                    .foregroundColor(.green)
+                                Text("Bluetooth is enabled")
+                            }
+                            HStack {
+                                Image(systemName: "checkmark.circle")
+                                    .foregroundColor(.green)
+                                Text("Unlocked or recently used")
+                            }
+                        }
+                        .foregroundColor(.secondary)
+                        
+                        Button(action: startScanning) {
+                            Label("Scan for Devices", systemImage: "magnifyingglass")
+                                .frame(minWidth: 200)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding(.horizontal, 60)
+                } else if deviceMonitor.isScanning && deviceMonitor.discoveredDevices.isEmpty {
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        
+                        Text("Scanning for devices...")
+                            .font(.headline)
+                        
+                        Text("Looking for nearby Bluetooth devices")
+                            .foregroundColor(.secondary)
+                            .padding(.top, 4)
+                        
+                        Button("Stop Scanning") {
+                            deviceMonitor.stopScanning()
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal, 60)
+                } else if !deviceMonitor.discoveredDevices.isEmpty {
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            Text("Found Devices:")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal)
+                            
+                            ForEach(deviceMonitor.discoveredDevices.prefix(5)) { device in
+                                OnboardingDeviceRow(device: device)
+                            }
+                            
+                            if deviceMonitor.monitoredDevices.isEmpty {
+                                Text("Tap a device to start monitoring")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .padding(.top, 8)
+                            } else {
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text("\(deviceMonitor.monitoredDevices.count) device(s) added")
+                                        .foregroundColor(.green)
+                                        .fontWeight(.medium)
+                                }
+                                .padding(.top, 8)
+                            }
                         }
                     }
+                    .frame(height: 200)
                 }
-                .frame(height: 200)
             }
+            .padding(.top, 30)
             
-            Spacer()
+            Spacer(minLength: 60)
         }
-        .padding(40)
+        .padding(.horizontal, 40)
+        .frame(maxHeight: .infinity)
         .onDisappear {
             // Stop scanning when leaving this page
             deviceMonitor.stopScanning()
