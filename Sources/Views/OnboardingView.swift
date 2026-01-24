@@ -347,6 +347,22 @@ struct DeviceSetupPage: View {
     @EnvironmentObject var deviceMonitor: DeviceMonitor
     @State private var hasStartedScanning = false
     
+    var prioritizedDevices: [Device] {
+        deviceMonitor.discoveredDevices.sorted { device1, device2 in
+            let device1IsApple = device1.type != .other
+            let device2IsApple = device2.type != .other
+            
+            // Apple devices first
+            if device1IsApple && !device2IsApple {
+                return true
+            } else if !device1IsApple && device2IsApple {
+                return false
+            }
+            // Keep original order within same category
+            return false
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 40)
@@ -425,7 +441,7 @@ struct DeviceSetupPage: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal)
                             
-                            ForEach(deviceMonitor.discoveredDevices.prefix(5)) { device in
+                            ForEach(prioritizedDevices.prefix(5)) { device in
                                 OnboardingDeviceRow(device: device)
                             }
                             

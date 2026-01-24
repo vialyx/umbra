@@ -41,13 +41,29 @@ struct DevicesTab: View {
             !deviceMonitor.monitoredDevices.contains(where: { $0.id == device.id })
         }
         
+        let filtered: [Device]
         if searchText.isEmpty {
-            return devices
+            filtered = devices
+        } else {
+            filtered = devices.filter { device in
+                device.name.localizedCaseInsensitiveContains(searchText) ||
+                device.type.rawValue.localizedCaseInsensitiveContains(searchText)
+            }
         }
         
-        return devices.filter { device in
-            device.name.localizedCaseInsensitiveContains(searchText) ||
-            device.type.rawValue.localizedCaseInsensitiveContains(searchText)
+        // Prioritize Apple devices, then others
+        return filtered.sorted { device1, device2 in
+            let device1IsApple = device1.type != .other
+            let device2IsApple = device2.type != .other
+            
+            // Apple devices first
+            if device1IsApple && !device2IsApple {
+                return true
+            } else if !device1IsApple && device2IsApple {
+                return false
+            }
+            // Keep original order within same category
+            return false
         }
     }
     
