@@ -28,8 +28,6 @@ cat > "$PLIST_PATH" << EOF
     </array>
     <key>RunAtLoad</key>
     <true/>
-    <key>KeepAlive</key>
-    <true/>
     <key>ProcessType</key>
     <string>Interactive</string>
     <key>LimitLoadToSessionType</key>
@@ -47,19 +45,22 @@ chmod 644 "$PLIST_PATH"
 # Unload existing LaunchAgent if present
 sudo -u "$CURRENT_USER" launchctl unload "$PLIST_PATH" 2>/dev/null || true
 
-# Load the LaunchAgent
+# Load the LaunchAgent (this will auto-start due to RunAtLoad=true)
+echo "Loading LaunchAgent..."
 sudo -u "$CURRENT_USER" launchctl load "$PLIST_PATH"
 
-# Give LaunchAgent a moment to initialize
-sleep 1
-
-# Launch the app immediately using launchctl kickstart (more reliable than open)
-echo "Starting Umbra..."
-sudo -u "$CURRENT_USER" launchctl kickstart -k "gui/$(id -u $CURRENT_USER)/com.umbra.app" 2>/dev/null || \
-sudo -u "$CURRENT_USER" open -a "/Applications/Umbra.app" &
-
-# Wait a moment to ensure the app starts
+# Wait for LaunchAgent to process
 sleep 2
+
+# Force start the app if it's not running yet
+echo "Starting Umbra..."
+if ! pgrep -x "Umbra" > /dev/null; then
+    # Use open command directly as the user
+    sudo -u "$CURRENT_USER" open -a "/Applications/Umbra.app" 2>/dev/null &
+fi
+
+# Give the app time to launch
+sleep 1
 
 echo "Umbra installation complete!"
 echo "The application has been started and will launch automatically on login."
