@@ -116,7 +116,7 @@ struct WelcomePage: View {
                 .foregroundColor(.secondary)
                 .font(.subheadline)
         }
-        .padding()
+        .padding(40)
     }
 }
 
@@ -191,25 +191,41 @@ struct BluetoothPermissionPage: View {
             
             Spacer()
         }
-        .padding()
+        .padding(40)
         .onAppear {
-            checkBluetoothPermission()
+            requestBluetoothPermission()
         }
     }
     
     func requestBluetoothPermission() {
+        // Check current state first
+        if DeviceMonitor.shared.bluetoothState == .poweredOn {
+            granted = true
+            return
+        }
+        
         isChecking = true
         // Trigger Bluetooth permission by starting the central manager
         DeviceMonitor.shared.startScanning()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        
+        // Check periodically for permission grant
+        var attempts = 0
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
+            attempts += 1
             self.checkBluetoothPermission()
-            DeviceMonitor.shared.stopScanning()
+            
+            if self.granted || attempts >= 10 {
+                timer.invalidate()
+                DeviceMonitor.shared.stopScanning()
+            }
         }
     }
     
     func checkBluetoothPermission() {
         granted = DeviceMonitor.shared.bluetoothState == .poweredOn
-        isChecking = false
+        if granted {
+            isChecking = false
+        }
     }
 }
 
@@ -319,7 +335,7 @@ struct StepRow: View {
 
 struct DeviceSetupPage: View {
     @EnvironmentObject var deviceMonitor: DeviceMonitor
-    @State private var isScanning = false
+    @State private var hasStartedScanning = false
     
     var body: some View {
         VStack(spacing: 30) {
@@ -339,7 +355,7 @@ struct DeviceSetupPage: View {
                     .foregroundColor(.secondary)
             }
             
-            if !deviceMonitor.isScanning && deviceMonitor.discoveredDevices.isEmpty {
+            if !hasStartedScanning {
                 VStack(spacing: 16) {
                     Text("Make sure your device is:")
                         .font(.headline)
@@ -370,7 +386,7 @@ struct DeviceSetupPage: View {
                     .buttonStyle(.borderedProminent)
                 }
                 .padding(.horizontal, 60)
-            } else if deviceMonitor.isScanning {
+            } else if deviceMonitor.isScanning && deviceMonitor.discoveredDevices.isEmpty {
                 VStack(spacing: 16) {
                     ProgressView()
                         .scaleEffect(1.5)
@@ -378,12 +394,18 @@ struct DeviceSetupPage: View {
                     Text("Scanning for devices...")
                         .font(.headline)
                     
-                    if deviceMonitor.discoveredDevices.isEmpty {
-                        Text("Looking for nearby Bluetooth devices")
-                            .foregroundColor(.secondary)
+                    Text("Looking for nearby Bluetooth devices")
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                    
+                    Button("Stop Scanning") {
+                        deviceMonitor.stopScanning()
                     }
+                    .buttonStyle(.borderless)
+                    .foregroundColor(.secondary)
                 }
-            } else {
+                .padding(.horizontal, 60)
+            } else if !deviceMonitor.discoveredDevices.isEmpty {
                 ScrollView {
                     VStack(spacing: 12) {
                         Text("Found Devices:")
@@ -417,11 +439,15 @@ struct DeviceSetupPage: View {
             
             Spacer()
         }
-        .padding()
+        .padding(40)
+        .onDisappear {
+            // Stop scanning when leaving this page
+            deviceMonitor.stopScanning()
+        }
     }
     
     func startScanning() {
-        isScanning = true
+        hasStartedScanning = true
         deviceMonitor.startScanning()
         
         // Auto-stop after 30 seconds
