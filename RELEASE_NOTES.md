@@ -1,54 +1,63 @@
-## 🔒 Umbra v1.0.0 - Initial Release
+## 🔒 Umbra v1.0.1 - Onboarding & Auto-Launch
 
-Umbra automatically locks your Mac when you walk away with your iPhone or Apple Watch, providing seamless security for your workspace.
+Major improvements to the first-time user experience!
 
-### ✨ Features
+### ✨ What's New
 
-- 🔐 Automatic screen locking based on device proximity
-- 📱 Support for iPhone, Apple Watch, iPad, and AirPods
-- 🎯 Customizable distance threshold (RSSI-based)
-- ⏱️ Configurable lock delay (0-30 seconds)
-- 🎨 Beautiful native SwiftUI interface
-- 📊 Real-time signal strength monitoring
-- 🔕 Menu bar app - unobtrusive and always accessible
-- 🚀 Launch at login support
-- 📦 Professional PKG installer
+- **🎯 Interactive Onboarding Flow** - New users are guided through setup with a beautiful 4-step wizard
+  - Welcome screen explaining features
+  - Bluetooth permission request with clear explanation
+  - Accessibility permission guide with step-by-step instructions
+  - Device setup with live scanning
+  
+- **🚀 Automatic Launch** - App now starts automatically after installation
+- **✅ Visual Permission Feedback** - See when permissions are granted in real-time
+- **📱 Integrated Device Setup** - Add devices directly during onboarding
+
+### 🎨 Onboarding Experience
+
+The new onboarding makes setup a breeze:
+
+1. **Welcome** - Learn what Umbra does and why you'll love it
+2. **Bluetooth** - Grant Bluetooth access with one click
+3. **Accessibility** - Follow clear steps to enable screen locking
+4. **Add Device** - Scan and add your iPhone or Apple Watch
 
 ### 📥 Installation
 
-1. Download `Umbra-1.0.0.pkg`
+1. Download `Umbra-1.0.1.pkg`
 2. Double-click to install
-3. Launch Umbra (look for shield icon in menu bar)
-4. Grant Bluetooth and Accessibility permissions when prompted
-5. Click Settings → Devices → Scan for Devices
-6. Add your iPhone or Apple Watch
-7. Configure distance and delay in Behavior tab
-8. Done! Your Mac will now lock automatically
+3. **App launches automatically!** 🎉
+4. Follow the onboarding wizard
+5. Done! Your Mac is now protected
 
 ### 📋 Requirements
 
 - macOS 13.0 (Ventura) or later
 - Bluetooth 4.0 or later
 - iPhone, Apple Watch, or other Bluetooth device
-- Accessibility permissions (for screen locking)
 
-### 🐛 Known Issues
+### 🔄 Upgrading from v1.0.0
 
-- First run requires manual Accessibility permission grant
-- Bluetooth interference may affect range detection accuracy
-- Range estimation is approximate (±2-3 meters)
+If you already have Umbra installed, this update adds:
+- Onboarding (shown only once)
+- Auto-launch after installation
+- Better permission guidance
 
-### 📝 Notes
+Your existing settings and monitored devices are preserved!
 
-This is an **unsigned** release for testing. Users may need to right-click → Open on first launch. For wider distribution, the app should be signed with a Developer ID and notarized.
+### 🐛 Fixed
+
+- App now launches immediately after installation (no need to find it manually)
+- New users get proper guidance through all steps
+- Permission requirements are clearly explained
 
 ### 🔗 Links
 
 - [Full Documentation](README.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 - [Report Issues](https://github.com/vialyx/umbra/issues)
 
 ---
 
-**First time using Umbra?** Check out our [Quick Start Guide](README.md#quick-start)!
+**Upgrading?** Your settings are safe! Just install and enjoy the improvements.

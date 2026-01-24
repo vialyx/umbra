@@ -5,6 +5,28 @@ All notable changes to Umbra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-01-24
+
+### Added
+- **Interactive onboarding flow** for first-time users
+  - Welcome screen explaining app features
+  - Bluetooth permission request with explanation
+  - Accessibility permission guide with step-by-step instructions
+  - Device setup wizard with live scanning
+- Automatic app launch after installation
+- Onboarding state persistence
+
+### Improved
+- Better user experience for new users
+- Clear permission explanations
+- Guided device setup process
+- Post-installation workflow
+
+### Fixed
+- App now starts automatically after PKG installation
+- Users are properly guided through all required permissions
+- Device addition is now part of onboarding
+
 ## [1.0.0] - 2026-01-24
 
 ### Added
