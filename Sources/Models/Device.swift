@@ -33,51 +33,66 @@ struct Device: Identifiable, Codable, Hashable {
         }
     }
     
-    static func detectType(from name: String) -> DeviceType {
+    static func detectType(from name: String, advertisementData: [String: Any]? = nil) -> DeviceType {
         let lowercaseName = name.lowercased()
         
-        // iPhone detection
-        if lowercaseName.contains("iphone") || 
-           lowercaseName.range(of: "\\biphone\\b", options: .regularExpression) != nil ||
-           lowercaseName.range(of: "'s iphone", options: .regularExpression) != nil {
+        // Check manufacturer data for Apple devices (Company ID: 0x004C = 76)
+        if let manufacturerData = advertisementData?[CBAdvertisementDataManufacturerDataKey] as? Data,
+           manufacturerData.count >= 2 {
+            let companyId = UInt16(manufacturerData[0]) | (UInt16(manufacturerData[1]) << 8)
+            
+            // Apple company identifier
+            if companyId == 0x004C {
+                // This is an Apple device - try to determine which one
+                // If name doesn't specify, default to iPhone (most common)
+                if lowercaseName.contains("watch") {
+                    return .appleWatch
+                } else if lowercaseName.contains("ipad") {
+                    return .iPad
+                } else if lowercaseName.contains("airpod") {
+                    return .airPods
+                } else if lowercaseName.contains("macbook") || lowercaseName.contains("imac") || 
+                          lowercaseName.contains("mac mini") || lowercaseName.contains("mac pro") {
+                    return .mac
+                } else if lowercaseName.contains("homepod") {
+                    return .homePod
+                } else if lowercaseName.contains("apple tv") || lowercaseName.contains("appletv") {
+                    return .appleTV
+                } else if !lowercaseName.contains("unknown") && lowercaseName != "unknown device" {
+                    // Apple device with custom name (likely iPhone)
+                    return .iPhone
+                }
+            }
+        }
+        
+        // Explicit name-based detection
+        if lowercaseName.contains("iphone") {
             return .iPhone
         }
         
-        // Apple Watch detection
-        if lowercaseName.contains("watch") || 
-           lowercaseName.contains("apple watch") {
+        if lowercaseName.contains("watch") || lowercaseName.contains("apple watch") {
             return .appleWatch
         }
         
-        // iPad detection
         if lowercaseName.contains("ipad") {
             return .iPad
         }
         
-        // AirPods detection (including AirPods Pro, Max, etc.)
-        if lowercaseName.contains("airpod") || 
-           lowercaseName.contains("airpods") ||
-           lowercaseName.contains("air pod") {
+        if lowercaseName.contains("airpod") || lowercaseName.contains("airpods") {
             return .airPods
         }
         
-        // Mac detection
-        if lowercaseName.contains("macbook") ||
-           lowercaseName.contains("imac") ||
-           lowercaseName.contains("mac mini") ||
-           lowercaseName.contains("mac pro") ||
+        if lowercaseName.contains("macbook") || lowercaseName.contains("imac") ||
+           lowercaseName.contains("mac mini") || lowercaseName.contains("mac pro") ||
            lowercaseName.contains("mac studio") {
             return .mac
         }
         
-        // HomePod detection
         if lowercaseName.contains("homepod") {
             return .homePod
         }
         
-        // Apple TV detection
-        if lowercaseName.contains("apple tv") ||
-           lowercaseName.contains("appletv") {
+        if lowercaseName.contains("apple tv") || lowercaseName.contains("appletv") {
             return .appleTV
         }
         

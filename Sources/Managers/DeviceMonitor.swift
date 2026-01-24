@@ -232,7 +232,9 @@ extension DeviceMonitor: CBCentralManagerDelegate {
         guard rssiValue > -100 else { return }
         
         let name = peripheral.name ?? advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? "Unknown Device"
-        let deviceType = Device.detectType(from: name)
+        
+        // Detect device type using both name and manufacturer data
+        let deviceType = Device.detectType(from: name, advertisementData: advertisementData)
         
         // Update discovered devices during scan
         if isScanning {
