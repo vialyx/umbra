@@ -21,6 +21,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var onboardingWindow: NSWindow?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Check for existing instance and quit if found
+        if isAnotherInstanceRunning() {
+            print("Another instance of Umbra is already running. Quitting...")
+            NSApp.terminate(nil)
+            return
+        }
+        
         // Hide dock icon - menu bar app only
         NSApp.setActivationPolicy(.accessory)
         
@@ -37,6 +44,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Show onboarding if first launch
         checkAndShowOnboarding()
+    }
+    
+    private func isAnotherInstanceRunning() -> Bool {
+        let runningApps = NSWorkspace.shared.runningApplications
+        let umbras = runningApps.filter { $0.bundleIdentifier == Bundle.main.bundleIdentifier }
+        return umbras.count > 1
     }
     
     func checkAndShowOnboarding() {

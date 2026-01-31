@@ -34,6 +34,8 @@ cat > "$PLIST_PATH" << EOF
     <array>
         <string>Aqua</string>
     </array>
+    <key>KeepAlive</key>
+    <false/>
 </dict>
 </plist>
 EOF
@@ -42,19 +44,23 @@ EOF
 chown "$CURRENT_USER:staff" "$PLIST_PATH"
 chmod 644 "$PLIST_PATH"
 
-# Unload existing LaunchAgent if present
+# Unload existing LaunchAgent if present (clean up any old/stale entries)
 sudo -u "$CURRENT_USER" launchctl unload "$PLIST_PATH" 2>/dev/null || true
 
-# Load the LaunchAgent (this will auto-start due to RunAtLoad=true)
+# Kill any existing Umbra instances to ensure clean start
+killall Umbra 2>/dev/null || true
+
+# Give time for processes to terminate
+sleep 1
+
+# Load the LaunchAgent
 echo "Loading LaunchAgent..."
 sudo -u "$CURRENT_USER" launchctl load "$PLIST_PATH"
 
-# Give LaunchAgent time to process
-sleep 1
-
-# Force start the app using open as the current user
+# Start the app using launchctl (not open) to avoid duplicate instances
+# The LaunchAgent will handle auto-start on login
 echo "Starting Umbra..."
-su - "$CURRENT_USER" -c "open -a '/Applications/Umbra.app'" 2>/dev/null &
+sudo -u "$CURRENT_USER" launchctl start com.umbra.app 2>/dev/null || true
 
 # Give the app time to launch
 sleep 1

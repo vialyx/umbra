@@ -27,7 +27,9 @@ class DeviceMonitor: NSObject, ObservableObject {
         setupMonitoring()
     }
     
-    func startScanning() {
+    private var scanTimeoutWorkItem: DispatchWorkItem?
+    
+    func startScanning(autoStop: Bool = true) {
         guard centralManager.state == .poweredOn else {
             print("Bluetooth not ready")
             return
@@ -41,13 +43,23 @@ class DeviceMonitor: NSObject, ObservableObject {
             CBCentralManagerScanOptionAllowDuplicatesKey: true
         ])
         
-        // Auto-stop after 30 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 30) { [weak self] in
-            self?.stopScanning()
+        // Cancel any existing timeout
+        scanTimeoutWorkItem?.cancel()
+        
+        // Auto-stop after 30 seconds only if requested (not during monitoring)
+        if autoStop {
+            let workItem = DispatchWorkItem { [weak self] in
+                guard let self = self, !self.isMonitoring else { return }
+                self.stopScanning()
+            }
+            scanTimeoutWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 30, execute: workItem)
         }
     }
     
     func stopScanning() {
+        scanTimeoutWorkItem?.cancel()
+        scanTimeoutWorkItem = nil
         centralManager.stopScan()
         isScanning = false
     }
@@ -77,7 +89,11 @@ class DeviceMonitor: NSObject, ObservableObject {
         
         isMonitoring = true
         
-        // Start continuous scanning for monitored devices
+        // Cancel any scan timeout since we're starting continuous monitoring
+        scanTimeoutWorkItem?.cancel()
+        scanTimeoutWorkItem = nil
+        
+        // Start continuous scanning for monitored devices (no auto-stop)
         if centralManager.state == .poweredOn {
             centralManager.scanForPeripherals(withServices: nil, options: [
                 CBCentralManagerScanOptionAllowDuplicatesKey: true
